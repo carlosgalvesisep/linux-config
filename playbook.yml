@@ -17,3 +17,9 @@
   become: yes
   roles:
     - install-scr-cpy
+
+- name: Install Python
+  hosts: localhost
+  become: yes
+  roles:
+    - install-python
