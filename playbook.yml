@@ -4,3 +4,9 @@
   become: yes
   roles:
     - install-flatpak-apps
+
+- name: Install Speedtest
+  hosts: localhost
+  become: yes
+  roles:
+    - install-speedtest-cli
