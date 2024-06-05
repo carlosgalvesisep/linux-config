@@ -1,0 +1,12 @@
+---
+- name: Install Flatpak
+  package:
+    name: flatpak
+    state: present
+
+- name: Add Flathub repository
+  command: flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+- name: Install Flatpak apps
+  command: flatpak install -y flathub {{ item }}
+  loop: "{{ flatpak_apps }}"

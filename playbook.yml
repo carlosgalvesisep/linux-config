@@ -1,0 +1,6 @@
+---
+- name: Install Flatpak apps
+  hosts: localhost
+  become: yes
+  roles:
+    - install-flatpak-apps
