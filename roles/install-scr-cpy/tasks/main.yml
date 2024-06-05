@@ -1,0 +1,10 @@
+---
+- name: Enable and install scrcpy from copr
+  command: dnf copr enable zeno/scrcpy -y
+  become: yes
+
+- name: Install scrcpy
+  dnf:
+    name: scrcpy
+    state: present
+  become: yes
