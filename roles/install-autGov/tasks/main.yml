@@ -1,10 +1,9 @@
 ---
 - name: Download flatpak
   become: true
-  shell: |
-    wget https://aplicacoes.autenticacao.gov.pt/apps/pteid-mw-linux.x86_64.flatpak
-  args:
-    chdir: /tmp
+  get_url:
+    url: https://aplicacoes.autenticacao.gov.pt/apps/pteid-mw-linux.x86_64.flatpak
+    dest: /tmp/pteid-mw-linux.x86_64.flatpak
 
 - name: Install flatpak
   become: true
