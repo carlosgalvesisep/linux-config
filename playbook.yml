@@ -5,6 +5,12 @@
   roles:
     - install-flatpak-apps
 
+- name: Install autenticaçãoGov
+  hosts: localhost
+  become: yes
+  roles:
+    - install-autGov
+
 # Fedora packages
 - name: Install Speedtest
   hosts: localhost
