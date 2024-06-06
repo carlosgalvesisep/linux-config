@@ -1,0 +1,15 @@
+---
+virtualbox_version: 7.0
+virtualbox_url: https://download.virtualbox.org/virtualbox/rpm/fedora/40/x86_64/VirtualBox-7.0-7.0.18_162988_fedora40-1.x86_64.rpm
+
+virtualbox_dep_pkgs:
+  - binutils
+  - gcc
+  - make
+  - patch
+  - libgomp
+  - glibc-headers
+  - glibc-devel
+  - kernel-headers
+  - kernel-devel
+  - dkms

@@ -1,0 +1,16 @@
+---
+- name: Download VirtualBox RPM
+  get_url:
+    url: "{{ virtualbox_url }}"
+    dest: "/tmp/VirtualBox-{{ virtualbox_version }}.rpm"
+
+- name: Install dependencies
+  dnf:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ virtualbox_dep_pkgs }}"
+
+- name: Install VirtualBox
+  dnf:
+    name: "/tmp/VirtualBox-{{ virtualbox_version }}.rpm"
+    state: present

@@ -1,6 +1,6 @@
 ---
-- name: Install Flatpak apps
+- name: Install VirtualBox
   hosts: localhost
-  become: yes
+  become: true
   roles:
-    - install-flatpak-apps
+    - install-virtual-box 
