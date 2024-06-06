@@ -1,0 +1,37 @@
+---
+- name: Check if Python is installed
+  become: true
+  command: python3 --version
+  register: python_version
+  ignore_errors: true
+
+- name: Install Python on Fedora
+  become: true
+  package:
+    name: python3
+    state: present
+  when: ansible_distribution == 'Fedora' and python_version.rc != 0
+
+- name: Install Python packages
+  become: true
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - python3-pip
+    - python3-devel
+    - python3-virtualenv
+
+- name: Install conda
+  become: true
+  dnf: 
+    name: conda
+    state: present
+
+- name: Disable conda auto activate base environment
+  become: true
+  copy:
+    content: |
+      auto_activate_base: false
+    dest: /home/admin/.condarc
+

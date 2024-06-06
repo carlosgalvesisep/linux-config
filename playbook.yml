@@ -4,3 +4,34 @@
   become: true
   roles:
     - install-virtual-box 
+
+- name: Install Flatpaks
+  hosts: localhost
+  become: true
+  roles:
+    - install-flatpak-apps
+
+- name: Install autenticaçãoGov
+  hosts: localhost
+  become: yes
+  roles:
+    - install-autGov
+
+# Fedora packages
+- name: Install Speedtest
+  hosts: localhost
+  become: yes
+  roles:
+    - install-speedtest-cli
+
+- name: Install scrcpy
+  hosts: localhost
+  become: yes
+  roles:
+    - install-scr-cpy
+
+- name: Install Python
+  hosts: localhost
+  become: yes
+  roles:
+    - install-python

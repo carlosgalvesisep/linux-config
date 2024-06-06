@@ -1,0 +1,14 @@
+- name: Install speedtest
+  block:
+    - name: Install speedtest-cli
+      dnf:
+        name: speedtest-cli
+        state: present
+      become: yes
+
+    - name: Create speedtest alias in bashrc for all users
+      lineinfile:
+        path: "/etc/bashrc"
+        line: "alias speedtest='speedtest-cli'"
+        state: present
+      become: yes

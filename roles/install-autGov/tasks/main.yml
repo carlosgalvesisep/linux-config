@@ -1,0 +1,20 @@
+---
+- name: Download flatpak
+  become: true
+  shell: |
+    wget https://aplicacoes.autenticacao.gov.pt/apps/pteid-mw-linux.x86_64.flatpak
+  args:
+    chdir: /tmp
+
+- name: Install flatpak
+  become: true
+  shell: |
+    flatpak install -y pteid-mw-linux.x86_64.flatpak
+  args:
+    chdir: /tmp
+
+- name: Delete flatpak
+  become: true
+  file:
+    path: /tmp/pteid-mw-linux.x86_64.flatpak
+    state: absent
