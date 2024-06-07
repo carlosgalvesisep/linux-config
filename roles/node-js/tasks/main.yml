@@ -1,0 +1,22 @@
+---
+- name: Ensure curl is installed
+  dnf:
+    name: curl
+    state: present
+
+- name: Download and install NVM
+  shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+  args:
+    creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
+
+- name: Source NVM script
+  shell: >
+    export NVM_DIR="{{ ansible_env.HOME }}/.nvm" &&
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    
+
+- name: Install Node.js 20 LTS
+  #shell: nvm install 20
+  dnf:
+    name: nodejs
+    state: present
