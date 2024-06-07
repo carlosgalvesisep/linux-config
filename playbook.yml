@@ -34,3 +34,9 @@
   become: true
   roles:
     - install-virtual-box 
+
+- name: Install Docker
+  hosts: localhost
+  become: true
+  roles:
+    - docker
