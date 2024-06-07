@@ -40,3 +40,9 @@
   become: yes
   roles:
     - rabbitmq
+
+- name: Install Docker
+  hosts: localhost
+  become: true
+  roles:
+    - docker
