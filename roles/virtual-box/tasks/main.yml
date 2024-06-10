@@ -1,4 +1,8 @@
 ---
+- name: Import VirtualBox GPG Key
+  rpm_key:
+    key: "{{ virtualbox_gpg_key_url }}"
+
 - name: Download VirtualBox RPM
   get_url:
     url: "{{ virtualbox_url }}"

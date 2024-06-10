@@ -1,0 +1,27 @@
+---
+# Setup/install tasks.
+- name: Ensure erlang is installed.
+  dnf:
+    name: erlang
+    state: present
+
+- name: Add GPG keys.
+  rpm_key:
+    key: "{{ item }}"
+    state: present
+  with_items:
+    - "{{ erlang_key }}"
+    - "{{ rabbitmq_key }}"
+    - "{{ rabbitmq_server_key }}"
+
+- name: Install RabbitMQ 
+  dnf:
+    name: "{{ rabbitmq_daemon }}"
+    state: "present"
+
+
+- name: Ensure rabbitmq is started and enabled (if configured).
+  service:
+    name: "{{ rabbitmq_daemon }}"
+    state: "{{ rabbitmq_state }}"
+    enabled: "{{ rabbitmq_enabled }}"
