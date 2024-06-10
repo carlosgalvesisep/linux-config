@@ -35,3 +35,9 @@
   become: yes
   roles:
     - install-python
+
+- name: Install RabbitMQ
+  hosts: localhost
+  become: yes
+  roles:
+    - rabbitmq
