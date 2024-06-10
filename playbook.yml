@@ -34,3 +34,9 @@
   become: true
   roles:
     - install-virtual-box 
+
+- name: Install RabbitMQ
+  hosts: localhost
+  become: yes
+  roles:
+    - rabbitmq
