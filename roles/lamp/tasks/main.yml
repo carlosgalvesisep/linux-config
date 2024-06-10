@@ -24,10 +24,6 @@
         url: http://localhost/
         return_content: yes
       register: webpage
-    
-    - name: Open http://localhost in browser
-      command: "xdg-open http://localhost"
-      become: yes
 
     - name: Ensure the web page contains the correct content
       assert:
@@ -131,7 +127,3 @@
       dnf:
         name: phpmyadmin
         state: present
-    
-    - name: Open phpMyAdmin in browser
-      command: "xdg-open http://localhost/phpmyadmin"
-      become: yes
