@@ -29,6 +29,12 @@
   roles:
     - install-python
 
+- name: Install LAMP stack
+  hosts: localhost
+  become: true
+  roles:
+    - lamp
+
 - name: Install VirtualBox
   hosts: localhost
   become: true
