@@ -1,7 +1,7 @@
 ---
 rabbitmq_daemon: rabbitmq-server
 rabbitmq_state: started
-rabbitmq_enabled: true
+rabbitmq_enabled: false
 
 rabbitmq_version: "3.12.10"
 
