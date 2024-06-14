@@ -46,3 +46,9 @@
   become: yes
   roles:
     - rabbitmq
+    
+- name: Install vscode
+  hosts: localhost
+  become: no
+  roles:
+    - vscode
