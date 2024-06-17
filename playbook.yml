@@ -39,10 +39,10 @@
   hosts: localhost
   become: true
   roles:
-    - virtual-box 
+    - install-virtual-box 
 
-- name: Install RabbitMQ
+- name: Install Docker
   hosts: localhost
-  become: yes
+  become: true
   roles:
-    - rabbitmq
+    - docker
