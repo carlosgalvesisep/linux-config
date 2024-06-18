@@ -1,0 +1,113 @@
+---
+- name: Install gnome-tweaks
+  become: true
+  become_user: root
+  dnf:
+    name: gnome-tweaks
+    state: present
+
+- name: Install psutil
+  become: true 
+  become_user: root 
+  pip: 
+    name: psutil
+    state: present
+
+- name: Configure dark mode
+  become: true
+  become_user: admin
+  community.general.dconf:
+    key: "/org/gnome/desktop/interface/color-scheme"
+    value: "'prefer-dark'"
+    state: present
+
+- name: Set theme
+  become: true
+  become_user: admin
+  community.general.dconf:
+    key: "/org/gnome/desktop/interface/gtk-theme"
+    value: "'Adwaita'"
+    state: present
+
+- name: Configure button layout
+  become: true
+  become_user: admin
+  community.general.dconf:
+    key: "/org/gnome/desktop/wm/preferences/button-layout"
+    value: "':minimize,maximize,close'"
+    state: present
+
+- name: Minimize window when middle click on titlebar
+  become: true
+  become_user: admin
+  community.general.dconf:
+    key: "/org/gnome/desktop/wm/preferences/middle-click-action"
+    value: "'minimize'"
+    state: present
+
+- name: Auto raise focused window
+  become: true
+  become_user: admin
+  community.general.dconf:
+    key: "/org/gnome/desktop/wm/preferences/auto-raise"
+    value: "true"
+    state: present
+
+- name: Set touchpad to tap-to-click
+  become: true
+  become_user: admin
+  community.general.dconf:
+    key: "/org/gnome/desktop/peripherals/touchpad/tap-to-click"
+    value: "true"
+    state: present
+  
+- name: Use 24h clock
+  become: true
+  become_user: admin
+  community.general.dconf:
+    key: "/org/gnome/desktop/interface/clock-format"
+    value: "'24h'"
+    state: present
+
+- name: Auto update timezone
+  become: true
+  become_user: admin
+  community.general.dconf:
+    key: "/org/gnome/desktop/datetime/automatic-timezone"
+    value: "true"
+    state: present
+
+- name: Disable hot corners
+  become: true
+  become_user: admin
+  community.general.dconf:
+    key: "/org/gnome/shell/enable-hot-corners"
+    value: "false"
+    state: present
+
+- name: Configure Gnome switch workspace hotkeys
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Configure workspace switch hotkeys
+      block:
+        - name: Set switch workspace hotkeys
+          community.general.dconf:
+            key: "{{ item.key }}"
+            value: "{{ item.value }}"
+            state: present
+          become_user: admin
+          loop:
+            - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-1", value: "'<Super>1'" }
+            - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-2", value: "'<Super>2'" }
+            - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-3", value: "'<Super>3'" }
+            - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-4", value: "'<Super>4'" }
+            - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-5", value: "'<Super>5'" }
+            - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-6", value: "'<Super>6'" }
+            - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-7", value: "'<Super>7'" }
+            - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-8", value: "'<Super>8'" }
+            - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-9", value: "'<Super>9'" }
+            - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-last", value: "'<Super>0'" }
+      
+
+          
