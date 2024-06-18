@@ -1,19 +1,25 @@
----
-- name: Download flatpak
-  become: true
-  get_url:
-    url: https://aplicacoes.autenticacao.gov.pt/apps/pteid-mw-linux.x86_64.flatpak
-    dest: /tmp/pteid-mw-linux.x86_64.flatpak
+- name: Check if flatpak is installed
+  shell:
+    cmd: flatpak list --app | grep pt.gov.autenticaca
+  register: flatpak_check
 
-- name: Install flatpak
-  become: true
-  shell: |
-    flatpak install -y pteid-mw-linux.x86_64.flatpak
-  args:
-    chdir: /tmp
+- name: Download and Install flatpak
+  become: yes
+  block:
+    - name: Download flatpak
+      get_url:
+        url: https://aplicacoes.autenticacao.gov.pt/apps/pteid-mw-linux.x86_64.flatpak
+        dest: /tmp/pteid-mw-linux.x86_64.flatpak
 
-- name: Delete flatpak
-  become: true
-  file:
-    path: /tmp/pteid-mw-linux.x86_64.flatpak
-    state: absent
+    - name: Install flatpak
+      shell:
+        cmd: flatpak install -y /tmp/pteid-mw-linux.x86_64.flatpak
+      args:
+        chdir: /tmp
+
+    - name: Delete flatpak file
+      file:
+        path: /tmp/pteid-mw-linux.x86_64.flatpak
+        state: absent
+  when: flatpak_check.rc != 0  
+
