@@ -1,15 +1,35 @@
 ---
-- name: Install Flatpaks
-  hosts: localhost
-  become: true
-  roles:
-    - flatpak-apps
 
-- name: Install autenticaçãoGov
+- name: Check if using Fedora
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Check distribution
+      ansible.builtin.shell:
+        cmd: cat /etc/os-release | grep -E '^NAME=|^VERSION='
+      register: os_release
+      changed_when: false  # Since this is a read-only task, we mark it as unchanged
+
+    - name: Print distribution details
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_items: "{{ os_release.stdout_lines }}"
+
+    - name: Abort if not Fedora
+      fail:
+        msg: "This playbook is only intended for Fedora"
+      when: '"Fedora" not in os_release.stdout'
+
+# Fedora
+
+- name: Update all dnf packages
   hosts: localhost
   become: yes
-  roles:
-    - autGov
+  tasks:
+    - name: Update dnf packages
+      dnf:
+        name: '*'
+        state: latest
 
 - name: Install Speedtest
   hosts: localhost
@@ -22,6 +42,37 @@
   become: yes
   roles:
     - scr-cpy
+
+# Gnome
+- name: Configure Gnome
+  hosts: localhost
+  become: true
+  roles:
+    - gnome
+  vars:
+    user: admin
+
+# Flatpaks
+- name: Install Flatpaks
+  hosts: localhost
+  become: true
+  roles:
+    - flatpak-apps
+
+- name: Install autenticaçãoGov
+  hosts: localhost
+  become: yes
+  roles:
+    - autGov
+
+
+# Development
+
+- name: Install Docker
+  hosts: localhost
+  become: true
+  roles:
+    - docker
 
 - name: Install Python
   hosts: localhost
@@ -39,10 +90,10 @@
   hosts: localhost
   become: true
   roles:
-    - install-virtual-box 
+    - virtual-box 
 
-- name: Install Docker
+- name: Install RabbitMQ
   hosts: localhost
   become: true
   roles:
-    - docker
+    - rabbitmq
