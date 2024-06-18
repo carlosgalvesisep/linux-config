@@ -46,3 +46,10 @@
   become: true
   roles:
     - docker
+
+- name: Configure Gnome
+  hosts: localhost
+  become: true
+  roles:
+    - gnome
+
