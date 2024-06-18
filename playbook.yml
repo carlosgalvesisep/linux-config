@@ -48,6 +48,11 @@
   become: yes
   roles:
     - firefox
+  vars:
+      user: admin
+      # profile_names:
+      #  - custom1
+      #  - custom2
 
 # Gnome
 - name: Configure Gnome
