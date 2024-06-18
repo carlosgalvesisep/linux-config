@@ -1,52 +1,55 @@
 ---
-- name: Install Flatpaks
+
+- name: Check if using Fedora
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Check distribution
+      ansible.builtin.shell:
+        cmd: cat /etc/os-release | grep -E '^NAME=|^VERSION='
+      register: os_release
+
+    - name: Print distribution details
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_items: "{{ os_release.stdout_lines }}"
+
+    - name: Abort if not Fedora
+      fail:
+        msg: "This playbook is only intended for Fedora"
+      when: '"Fedora" not in os_release.stdout'
+
+
+# Fedora
+- name: Update all dnf packages
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Update all packages
+      dnf:
+        name: '*'
+        state: latest
+
+# Gnome
+- name: Configure Gnome
   hosts: localhost
   become: true
   roles:
-    - install-flatpak-apps
-
-- name: Install autenticaçãoGov
-  hosts: localhost
-  become: yes
-  roles:
-    - install-autGov
-
-- name: Install Speedtest
-  hosts: localhost
-  become: yes
-  roles:
-    - install-speedtest-cli
-
-- name: Install scrcpy
-  hosts: localhost
-  become: yes
-  roles:
-    - install-scr-cpy
-
-- name: Install Python
-  hosts: localhost
-  become: yes
-  roles:
-    - install-python
-
-- name: Install VirtualBox
-  hosts: localhost
-  become: true
-  roles:
-    - install-virtual-box 
-
-- name: Install RabbitMQ
-  hosts: localhost
-  become: yes
-  roles:
-    - rabbitmq
-
-- name: Install Docker
+    - gnome
+  vars:
+    user: admin
+    
+# Development
+- name: Install Development Tools
   hosts: localhost
   become: true
   roles:
     - docker
+    - python
+    - nodejs
+    - rabbitmq
 
+# Firefox
 - name: Configure Firefox
   hosts: localhost
   become: yes
@@ -58,13 +61,20 @@
       #  - custom1
       #  - custom2
 
-
-# Gnome
-- name: Configure Gnome
+# Flatpaks
+- name: Install Flatpak Apps
   hosts: localhost
   become: true
   roles:
-    - gnome
-  vars:
-    user: admin
+    - flatpak-apps
+    - autGov
+
+# Applications
+- name: Install Applications
+  hosts: localhost
+  become: true
+  roles:
+    - scr-cpy
+    - speedtest-cli
+    - virtual-box 
 
