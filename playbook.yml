@@ -8,7 +8,6 @@
       ansible.builtin.shell:
         cmd: cat /etc/os-release | grep -E '^NAME=|^VERSION='
       register: os_release
-      changed_when: false  # Since this is a read-only task, we mark it as unchanged
 
     - name: Print distribution details
       ansible.builtin.debug:
@@ -20,29 +19,37 @@
         msg: "This playbook is only intended for Fedora"
       when: '"Fedora" not in os_release.stdout'
 
-# Fedora
 
+# Fedora
 - name: Update all dnf packages
   hosts: localhost
   become: yes
   tasks:
-    - name: Update dnf packages
+    - name: Update all packages
       dnf:
         name: '*'
         state: latest
 
-- name: Install Speedtest
+# Gnome
+- name: Configure Gnome
   hosts: localhost
-  become: yes
+  become: true
   roles:
-    - speedtest-cli
-
-- name: Install scrcpy
+    - gnome
+  vars:
+    user: admin
+    
+# Development
+- name: Install Development Tools
   hosts: localhost
-  become: yes
+  become: true
   roles:
-    - scr-cpy
+    - docker
+    - python
+    - nodejs
+    - rabbitmq
 
+# Firefox
 - name: Configure Firefox
   hosts: localhost
   become: yes
@@ -54,58 +61,20 @@
       #  - custom1
       #  - custom2
 
-
-# Gnome
-- name: Configure Gnome
-  hosts: localhost
-  become: true
-  roles:
-    - gnome
-  vars:
-    user: admin
-
 # Flatpaks
-- name: Install Flatpaks
+- name: Install Flatpak Apps
   hosts: localhost
   become: true
   roles:
     - flatpak-apps
-
-- name: Install autenticaçãoGov
-  hosts: localhost
-  become: yes
-  roles:
     - autGov
 
-
-# Development
-
-- name: Install Docker
+# Applications
+- name: Install Applications
   hosts: localhost
   become: true
   roles:
-    - docker
-
-- name: Install Python
-  hosts: localhost
-  become: yes
-  roles:
-    - python
-
-- name: Install NodeJS
-  hosts: localhost
-  become: yes
-  roles:
-    - nodejs
-
-- name: Install VirtualBox
-  hosts: localhost
-  become: true
-  roles:
+    - scr-cpy
+    - speedtest-cli
     - virtual-box 
 
-- name: Install RabbitMQ
-  hosts: localhost
-  become: true
-  roles:
-    - rabbitmq
