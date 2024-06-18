@@ -52,4 +52,6 @@
   become: true
   roles:
     - gnome
+  vars:
+    user: admin
 

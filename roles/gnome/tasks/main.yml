@@ -1,21 +1,19 @@
 ---
 - name: Install gnome-tweaks
   become: true
-  become_user: root
   dnf:
     name: gnome-tweaks
     state: present
 
 - name: Install psutil
   become: true 
-  become_user: root 
   pip: 
     name: psutil
     state: present
 
 - name: Configure dark mode
   become: true
-  become_user: admin
+  become_user: "{{ user }}"
   community.general.dconf:
     key: "/org/gnome/desktop/interface/color-scheme"
     value: "'prefer-dark'"
@@ -23,7 +21,7 @@
 
 - name: Set theme
   become: true
-  become_user: admin
+  become_user: "{{ user }}"
   community.general.dconf:
     key: "/org/gnome/desktop/interface/gtk-theme"
     value: "'Adwaita'"
@@ -31,7 +29,7 @@
 
 - name: Configure button layout
   become: true
-  become_user: admin
+  become_user: "{{ user }}"
   community.general.dconf:
     key: "/org/gnome/desktop/wm/preferences/button-layout"
     value: "':minimize,maximize,close'"
@@ -39,7 +37,7 @@
 
 - name: Minimize window when middle click on titlebar
   become: true
-  become_user: admin
+  become_user: "{{ user }}"
   community.general.dconf:
     key: "/org/gnome/desktop/wm/preferences/middle-click-action"
     value: "'minimize'"
@@ -47,7 +45,7 @@
 
 - name: Auto raise focused window
   become: true
-  become_user: admin
+  become_user: "{{ user }}"
   community.general.dconf:
     key: "/org/gnome/desktop/wm/preferences/auto-raise"
     value: "true"
@@ -55,7 +53,7 @@
 
 - name: Set touchpad to tap-to-click
   become: true
-  become_user: admin
+  become_user: "{{ user }}"
   community.general.dconf:
     key: "/org/gnome/desktop/peripherals/touchpad/tap-to-click"
     value: "true"
@@ -63,7 +61,7 @@
   
 - name: Use 24h clock
   become: true
-  become_user: admin
+  become_user: "{{ user }}"
   community.general.dconf:
     key: "/org/gnome/desktop/interface/clock-format"
     value: "'24h'"
@@ -71,7 +69,7 @@
 
 - name: Auto update timezone
   become: true
-  become_user: admin
+  become_user: "{{ user }}"
   community.general.dconf:
     key: "/org/gnome/desktop/datetime/automatic-timezone"
     value: "true"
@@ -79,7 +77,7 @@
 
 - name: Disable hot corners
   become: true
-  become_user: admin
+  become_user: "{{ user }}"
   community.general.dconf:
     key: "/org/gnome/shell/enable-hot-corners"
     value: "false"
@@ -87,7 +85,7 @@
 
 - name: Configure Gnome switch workspace hotkeys
   become: true
-  become_user: admin
+  become_user: "{{ user }}"
   community.general.dconf:
     key: "{{ item.key }}"
     value: "{{ item.value }}"
