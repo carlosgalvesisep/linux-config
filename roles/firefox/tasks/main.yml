@@ -12,6 +12,7 @@
 
 - name: Create Firefox profiles
   become: yes
+  become_user: "{{ user }}"
   command: firefox --no-remote -CreateProfile "{{ item }}"
   loop: "{{ profile_names }}"
   when: firefox_check.rc == 0

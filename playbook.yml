@@ -58,6 +58,7 @@
       #  - custom1
       #  - custom2
 
+
 # Gnome
 - name: Configure Gnome
   hosts: localhost
