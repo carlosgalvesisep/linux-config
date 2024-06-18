@@ -29,6 +29,14 @@
       dnf:
         name: '*'
         state: latest
+    - name: Install packages
+      dnf:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - git
+        - fastfetch
+
 
 # Gnome
 - name: Configure Gnome
