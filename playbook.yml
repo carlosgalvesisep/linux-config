@@ -43,6 +43,12 @@
   roles:
     - scr-cpy
 
+- name: Configure Firefox
+  hosts: localhost
+  become: yes
+  roles:
+    - firefox
+
 # Gnome
 - name: Configure Gnome
   hosts: localhost
