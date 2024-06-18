@@ -10,6 +10,12 @@
     state: present
   when: firefox_check.rc != 0
 
+- name: Create Firefox profiles
+  become: yes
+  command: firefox --no-remote -CreateProfile "{{ item }}"
+  loop: "{{ profile_names }}"
+  when: firefox_check.rc == 0
+
 - name: Download and install Firefox GNOME theme
   become: yes
   shell: curl -s -o- https://raw.githubusercontent.com/rafaelmardojai/firefox-gnome-theme/master/scripts/install-by-curl.sh | bash
