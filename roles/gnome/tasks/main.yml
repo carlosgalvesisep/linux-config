@@ -105,4 +105,12 @@
     - { key: "/org/gnome/desktop/wm/keybindings/switch-to-workspace-last", value: "'<Super>0'" }
 
 
-          
+- name: Enable COPR repository and install nautilus-admin
+  block:
+    - name: Enable tomaszgasior/mushrooms COPR repository
+      command: dnf copr enable tomaszgasior/mushrooms -y
+
+    - name: Install nautilus-admin
+      dnf:
+        name: nautilus-admin
+        state: present

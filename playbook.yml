@@ -35,3 +35,10 @@
   become: yes
   roles:
     - install-python
+
+- name: Configure Gnome
+  hosts: localhost
+  become: true
+  roles:
+    - gnome
+
