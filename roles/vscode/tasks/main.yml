@@ -1,0 +1,44 @@
+---
+
+- name: Enable vscode repository (Yum)
+  ansible.builtin.yum_repository:
+    name: vscode
+    description: Visual Studio Code repository
+    state: present
+    baseurl: "{{ vscode_mirror }}/yumrepos/vscode"
+    gpgkey: "{{ vscode_mirror }}/keys/microsoft.asc"
+    gpgcheck: yes
+    includepkgs: code
+  become: true
+  when: ansible_os_family == 'RedHat'
+
+- name: Install missing package dependencies RedHat (gh/ms/vscode/issues/17142)
+  ansible.builtin.package:
+    name:
+      - libxshmfence
+      - libX11-xcb
+    state: present
+  become: true
+  when: ansible_os_family == 'RedHat' and ansible_distribution_major_version > '7'
+
+- name: Install vscode
+  ansible.builtin.package:
+    name: "{{ vscode_package }}"
+    state: latest
+  become: true
+
+- name: Install extensions
+  ansible.builtin.command: "code --install-extension {{ item }}"
+  with_items: "{{ vscode_extensions }}"
+  register: result
+  changed_when: "'already installed' not in result.stdout"
+  when: vscode_user | length == 0
+
+- name: Install extensions for vscode_user
+  ansible.builtin.command: "code --install-extension {{ item }}"
+  with_items: "{{ vscode_extensions }}"
+  register: result
+  changed_when: "'already installed' not in result.stdout"
+  become_user: "{{ vscode_user }}"
+  become: true
+  when: vscode_user | length > 0
