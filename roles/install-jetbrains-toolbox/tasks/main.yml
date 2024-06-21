@@ -36,6 +36,25 @@
     remote_src: yes
   register: jetbrains_toolbox_unarchive
 
+- name: debug jetbrains_toolbox_unarchive
+  debug:
+    var: jetbrains_toolbox_unarchive.files
+
 - name: Install JetBrains Toolbox
-  #command: "{{ jetbrains_toolbox_download_dir }}/{{ jetbrains_toolbox_unarchive.files | first }}/jetbrains-toolbox --install"
-  command: "{{ jetbrains_toolbox_download_dir }}/{{ jetbrains_toolbox_unarchive.files | first }}/jetbrains-toolbox"
+  shell: "{{ jetbrains_toolbox_download_dir }}/{{ jetbrains_toolbox_unarchive.files | first }}jetbrains-toolbox --install"
+
+- name: Clean up downloaded files
+  become: yes
+  file:
+    path: "{{ jetbrains_toolbox_download_dir }}/{{ jetbrains_toolbox_unarchive.files | first }}"
+    state: absent
+
+- name: Clean up downloaded files
+  become: yes
+  file:
+    path: "{{ item }}"
+    state: absent
+    recurse: yes
+  with_items:
+    - "{{ jetbrains_toolbox_download_dir }}/{{ jetbrains_toolbox_unarchive.files[0].path | dirname }}"
+    - "{{ jetbrains_toolbox_download_dir }}/jetbrains_toolbox.tar.gz"
