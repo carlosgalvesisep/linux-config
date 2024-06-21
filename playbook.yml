@@ -46,7 +46,9 @@
     - gnome
   vars:
     user: admin
-    
+    #hostname_static: fedora-pc
+    #hostname_pretty: Fedora PC
+
 # Development
 - name: Install Development Tools
   hosts: localhost
