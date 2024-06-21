@@ -1,54 +1,93 @@
 ---
-- name: Install Flatpaks
+
+- name: Check if using Fedora
+  hosts: localhost
+  gather_facts: false
+  tasks:
+    - name: Check distribution
+      ansible.builtin.shell:
+        cmd: cat /etc/os-release | grep -E '^NAME=|^VERSION='
+      register: os_release
+
+    - name: Print distribution details
+      ansible.builtin.debug:
+        msg: "{{ item }}"
+      with_items: "{{ os_release.stdout_lines }}"
+
+    - name: Abort if not Fedora
+      fail:
+        msg: "This playbook is only intended for Fedora"
+      when: '"Fedora" not in os_release.stdout'
+
+
+# Fedora
+- name: Update all dnf packages
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Update all packages
+      dnf:
+        name: '*'
+        state: latest
+    - name: Install packages
+      dnf:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - git
+        - fastfetch
+
+
+# Gnome
+- name: Configure Gnome
+  hosts: localhost
+  become: true
+  roles:
+    - gnome
+  vars:
+    user: admin
+    #hostname_static: fedora-pc
+    #hostname_pretty: Fedora PC
+
+# Development
+- name: Install Development Tools
+  hosts: localhost
+  become: true
+  roles:
+    - docker
+    - python
+    - nodejs
+    - rabbitmq
+
+# Firefox
+- name: Configure Firefox
+  hosts: localhost
+  become: yes
+  roles:
+    - firefox
+  vars:
+      user: admin
+      # profile_names:
+      #  - custom1
+      #  - custom2
+
+# Flatpaks
+- name: Install Flatpak Apps
   hosts: localhost
   become: true
   roles:
     - flatpak-apps
-
-- name: Install autenticaçãoGov
-  hosts: localhost
-  become: yes
-  roles:
     - autGov
 
-- name: Install Speedtest
-  hosts: localhost
-  become: yes
-  roles:
-    - speedtest-cli
-
-- name: Install scrcpy
-  hosts: localhost
-  become: yes
-  roles:
-    - scr-cpy
-
-- name: Install Python
-  hosts: localhost
-  become: yes
-  roles:
-    - python
-
-- name: Install NodeJS
-  hosts: localhost
-  become: yes
-  roles:
-    - nodejs
-
-- name: Install VirtualBox
+# Applications
+- name: Install Applications
   hosts: localhost
   become: true
   roles:
+    - scr-cpy
+    - speedtest-cli
     - virtual-box 
+    - jetbrains-toolbox
+    - vs-code
 
-- name: Install RabbitMQ
-  hosts: localhost
-  become: yes
-  roles:
-    - rabbitmq
-    
-- name: Install vscode
-  hosts: localhost
-  become: no
-  roles:
-    - vscode
+
