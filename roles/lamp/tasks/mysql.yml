@@ -1,0 +1,46 @@
+---
+
+- name: Install MySQL package
+  package:
+    name: mysql-server
+    state: present
+  tags: mariadb
+
+- name: Ensure service is started
+  service:
+    name: mysqld
+    state: started
+    enabled: true
+  tags: mariadb
+
+
+- name: Check if root password is unset
+  shell: >
+    mysql -u root
+    -p'{{ mariadb_root_password }}'
+    -h localhost
+    -S {{ mariadb_socket }}
+    -e "quit"
+  changed_when: false
+  ignore_errors: true
+  register: root_pwd_check
+  tags: mariadb
+
+# Repeat runs with the same password can continue idempotently, otherwise fail.
+- name: Check if the specified root password is already set
+  shell: >
+    mysqladmin -u root -p{{ mariadb_root_password }} status
+  changed_when: false
+  no_log: true
+  when: root_pwd_check.rc != 0
+  tags: mariadb
+
+- name: Set MariaDB root password for the first time (root@localhost)
+  mysql_user:
+    name: root
+    password: "{{ mariadb_root_password }}"
+    host: localhost
+    login_unix_socket: "{{ mariadb_socket }}"
+    state: present
+  when: root_pwd_check.rc != 0
+  tags: mariadb
