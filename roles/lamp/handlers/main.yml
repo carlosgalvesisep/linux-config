@@ -1,0 +1,17 @@
+---
+- name: Start Apache
+  service:
+    name: httpd
+    state: started
+    enabled: yes
+
+- name: Reload Apache
+  service:
+    name: httpd
+    state: reloaded
+
+- name: Start MySQL
+  service:
+    name: mysqld
+    state: started
+    enabled: yes

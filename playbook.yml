@@ -43,6 +43,7 @@
   hosts: localhost
   become: true
   roles:
+    - lamp
     - docker
     - python
     - nodejs

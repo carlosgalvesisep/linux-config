@@ -1,0 +1,129 @@
+---
+- name: Install Apache
+  block:
+    - name: Install Apache
+      dnf:
+        name: httpd
+        state: present
+      notify:
+        - Start Apache
+
+    - name: Ensure Apache is running
+      systemd:
+        name: httpd
+        state: started
+        enabled: yes
+
+    - name: Create a test HTML file
+      copy:
+        content: "<html><body><h1>Apache is working!</h1></body></html>"
+        dest: /var/www/html/index.html
+
+    - name: Verify Apache is serving the test page
+      uri:
+        url: http://localhost/
+        return_content: yes
+      register: webpage
+
+    - name: Ensure the web page contains the correct content
+      assert:
+        that:
+          - "'Apache is working!' in webpage.content"
+
+- name: Install MySQL
+  block:
+    - name: Install MySQL server
+      dnf:
+        name: mysql-server
+        state: present
+      notify:
+        - Start MySQL
+
+    - name: Start and enable MySQL service
+      systemd:
+        name: mysqld
+        state: started
+        enabled: yes
+
+    - name: Install PyMySQL for Python 3
+      pip:
+        name: PyMySQL
+        state: present
+        executable: pip3
+
+    - name: Set MySQL root password
+      mysql_user:
+        name: root
+        password: "{{ mysql_root_password }}"
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        login_unix_socket: /var/lib/mysql/mysql.sock
+        host_all: yes
+        priv: '*.*:ALL,GRANT'
+
+    - name: Create a test database
+      mysql_db:
+        name: test_db
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        login_unix_socket: /var/lib/mysql/mysql.sock
+
+    - name: Create a test user
+      mysql_user:
+        name: test_user
+        password: test_password
+        priv: 'test_db.*:ALL'
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        login_unix_socket: /var/lib/mysql/mysql.sock
+        host: localhost
+
+    - name: Verify test database exists
+      mysql_db:
+        name: test_db
+        state: present
+        login_user: root
+        login_password: "{{ mysql_root_password }}"
+        login_unix_socket: /var/lib/mysql/mysql.sock
+      register: db_exists
+
+    - name: Ensure the test database exists
+      assert:
+        that:
+          - db_exists is defined
+          - db_exists.db == 'test_db'
+
+    - name: Verify test user exists
+      command: "mysql -u root -p{{ mysql_root_password }} -e 'SELECT user FROM mysql.user WHERE user = \"test_user\";'"
+      register: user_check
+
+    - name: Ensure the test user exists
+      assert:
+        that:
+          - user_check.stdout.find('test_user') != -1
+
+- name: Install PHP
+  block:
+    - name: Install PHP
+      dnf:
+        name: php
+        state: present
+
+    - name: Install PHP modules
+      dnf:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - php-mysqlnd
+        - php-cli
+        - php-json
+        - php-curl
+        - php-gd
+        - phpmyadmin
+
+    - name: Install phpMyAdmin
+      dnf:
+        name: phpmyadmin
+        state: present
