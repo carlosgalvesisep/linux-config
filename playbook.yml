@@ -38,6 +38,17 @@
         - fastfetch
 
 
+# Development
+- name: Install Development Tools
+  hosts: localhost
+  become: true
+  roles:
+    - docker
+    - python
+    - nodejs
+    - rabbitmq
+
+
 # Gnome
 - name: Configure Gnome
   hosts: localhost
@@ -49,15 +60,6 @@
     #hostname_static: fedora-pc
     #hostname_pretty: Fedora PC
 
-# Development
-- name: Install Development Tools
-  hosts: localhost
-  become: true
-  roles:
-    - docker
-    - python
-    - nodejs
-    - rabbitmq
 
 # Firefox
 - name: Configure Firefox
@@ -88,6 +90,6 @@
     - speedtest-cli
     - virtual-box 
     - jetbrains-toolbox
-    - vs-code
+    - vscode
 
 

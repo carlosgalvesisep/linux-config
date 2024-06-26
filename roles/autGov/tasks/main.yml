@@ -1,8 +1,8 @@
 - name: Check if flatpak is installed
-  shell:
-    cmd: flatpak list --app | grep pt.gov.autenticaca
+  shell: flatpak list --app | grep pt.gov.autenticaca
+  ignore_errors: true 
   register: flatpak_check
-
+  
 - name: Download and Install flatpak
   become: yes
   block:

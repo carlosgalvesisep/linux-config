@@ -54,7 +54,6 @@
   file:
     path: "{{ item }}"
     state: absent
-    recurse: yes
   with_items:
-    - "{{ jetbrains_toolbox_download_dir }}/{{ jetbrains_toolbox_unarchive.files[0].path | dirname }}"
+    - "{{ jetbrains_toolbox_download_dir }}/{{ jetbrains_toolbox_unarchive.files | first }}"
     - "{{ jetbrains_toolbox_download_dir }}/jetbrains_toolbox.tar.gz"
