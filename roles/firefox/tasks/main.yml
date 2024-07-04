@@ -19,5 +19,6 @@
 
 - name: Download and install Firefox GNOME theme
   become: yes
+  become_user: "{{ user }}"
   shell: curl -s -o- https://raw.githubusercontent.com/rafaelmardojai/firefox-gnome-theme/master/scripts/install-by-curl.sh | bash
   when: firefox_check.rc == 0
