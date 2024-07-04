@@ -19,9 +19,8 @@
         msg: "This playbook is only intended for Fedora"
       when: '"Fedora" not in os_release.stdout'
 
-
 # Fedora
-- name: Update all dnf packages
+- name: Handle dnf packages
   hosts: localhost
   become: yes
   tasks:
@@ -29,6 +28,14 @@
       dnf:
         name: '*'
         state: latest
+
+    - name: Remove packages
+      dnf:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - libreoffice*
+
     - name: Install packages
       dnf:
         name: "{{ item }}"
@@ -36,7 +43,9 @@
       loop:
         - git
         - fastfetch
-
+        - pandoc
+        - pandoc-pdf
+        - keepassxc
 
 # Development
 - name: Install Development Tools
