@@ -115,5 +115,5 @@
   
 - name: Set hostnames
   shell: |
-    hostnamectl set-hostname --static {{ hostname_static }} 
+    hostnamectl set-hostname --static "{{ hostname_static }}"
     hostnamectl set-hostname --pretty "{{ hostname_pretty }}"
