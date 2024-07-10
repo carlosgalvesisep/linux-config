@@ -1,46 +1,276 @@
 ---
+# Variable configuration.
+- name: Include OS-specific variables.
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "vars/{{ ansible_os_family }}-{{ ansible_distribution_major_version }}.yml"
+        - "vars/{{ ansible_os_family }}.yml"
+      skip: true
 
-- name: Install MySQL package
-  package:
-    name: mysql-server
+- name: Define mysql_packages.
+  ansible.builtin.set_fact:
+    mysql_packages: "{{ __mysql_packages | list }}"
+  when: mysql_packages is not defined
+
+- name: Define mysql_daemon.
+  ansible.builtin.set_fact:
+    mysql_daemon: "{{ __mysql_daemon }}"
+  when: mysql_daemon is not defined
+
+- name: Define mysql_slow_query_log_file.
+  ansible.builtin.set_fact:
+    mysql_slow_query_log_file: "{{ __mysql_slow_query_log_file }}"
+  when: mysql_slow_query_log_file is not defined
+
+- name: Define mysql_log_error.
+  ansible.builtin.set_fact:
+    mysql_log_error: "{{ __mysql_log_error }}"
+  when: mysql_log_error is not defined
+
+- name: Define mysql_syslog_tag.
+  ansible.builtin.set_fact:
+    mysql_syslog_tag: "{{ __mysql_syslog_tag }}"
+  when: mysql_syslog_tag is not defined
+
+- name: Define mysql_pid_file.
+  ansible.builtin.set_fact:
+    mysql_pid_file: "{{ __mysql_pid_file }}"
+  when: mysql_pid_file is not defined
+
+- name: Define mysql_config_file.
+  ansible.builtin.set_fact:
+    mysql_config_file: "{{ __mysql_config_file }}"
+  when: mysql_config_file is not defined
+
+- name: Define mysql_config_include_dir.
+  ansible.builtin.set_fact:
+    mysql_config_include_dir: "{{ __mysql_config_include_dir }}"
+  when: mysql_config_include_dir is not defined
+
+- name: Define mysql_socket.
+  ansible.builtin.set_fact:
+    mysql_socket: "{{ __mysql_socket }}"
+  when: mysql_socket is not defined
+
+- name: Define mysql_supports_innodb_large_prefix.
+  ansible.builtin.set_fact:
+    mysql_supports_innodb_large_prefix: "{{ __mysql_supports_innodb_large_prefix }}"
+  when: mysql_supports_innodb_large_prefix is not defined
+
+# Setup/install tasks.
+- name: Ensure MySQL packages are installed.
+  ansible.builtin.yum:
+    name: "{{ mysql_packages }}"
     state: present
-  tags: mariadb
+    enablerepo: "{{ mysql_enablerepo | default(omit, true) }}"
+  register: rh_mysql_install_packages
 
-- name: Ensure service is started
-  service:
-    name: mysqld
+- name: Check if MySQL packages were installed.
+  ansible.builtin.set_fact:
+    mysql_install_packages: "{{ (rh_mysql_install_packages is defined and rh_mysql_install_packages.changed)
+      or (deb_mysql_install_packages is defined and deb_mysql_install_packages.changed)
+      or (arch_mysql_install_packages is defined and arch_mysql_install_packages.changed) }}"
+
+# Configure MySQL.
+- name: Get MySQL version.
+  ansible.builtin.command: 'mysql --version'
+  register: mysql_cli_version
+  changed_when: false
+  check_mode: false
+
+- name: Copy my.cnf global MySQL configuration.
+  ansible.builtin.template:
+    src: my.cnf.j2
+    dest: "{{ mysql_config_file }}"
+    owner: root
+    group: root
+    mode: 0644
+    force: "{{ overwrite_global_mycnf }}"
+  notify: restart mysql
+
+- name: Verify mysql include directory exists.
+  ansible.builtin.file:
+    path: "{{ mysql_config_include_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+  when: mysql_config_include_files | length
+
+- name: Copy my.cnf override files into include directory.
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ mysql_config_include_dir }}/{{ item.src | basename }}"
+    owner: root
+    group: root
+    mode: 0644
+    force: "{{ item.force | default(False) }}"
+  with_items: "{{ mysql_config_include_files }}"
+  notify: restart mysql
+
+- name: Create slow query log file (if configured).
+  ansible.builtin.command: "touch {{ mysql_slow_query_log_file }}"
+  args:
+    creates: "{{ mysql_slow_query_log_file }}"
+  when: mysql_slow_query_log_enabled
+
+- name: Create datadir if it does not exist
+  ansible.builtin.file:
+    path: "{{ mysql_datadir }}"
+    state: directory
+    owner: mysql
+    group: mysql
+    mode: 0755
+    setype: mysqld_db_t
+
+- name: Set ownership on slow query log file (if configured).
+  ansible.builtin.file:
+    path: "{{ mysql_slow_query_log_file }}"
+    state: file
+    owner: mysql
+    group: "{{ mysql_log_file_group }}"
+    mode: 0640
+  when: mysql_slow_query_log_enabled
+
+- name: Create error log file (if configured).
+  ansible.builtin.command: "touch {{ mysql_log_error }}"
+  args:
+    creates: "{{ mysql_log_error }}"
+  when:
+    - mysql_log | default(true)
+    - mysql_log_error | default(false)
+  tags: ['skip_ansible_galaxy']
+
+- name: Set ownership on error log file (if configured).
+  ansible.builtin.file:
+    path: "{{ mysql_log_error }}"
+    state: file
+    owner: mysql
+    group: "{{ mysql_log_file_group }}"
+    mode: 0640
+  when:
+    - mysql_log | default(true)
+    - mysql_log_error | default(false)
+  tags: ['skip_ansible_galaxy']
+
+- name: Ensure MySQL is started and enabled on boot.
+  ansible.builtin.service:
+    name: "{{ mysql_daemon }}"
     state: started
-    enabled: true
-  tags: mariadb
+    enabled: "{{ mysql_enabled_on_startup }}"
+  register: mysql_service_configuration
 
-
-- name: Check if root password is unset
-  shell: >
-    mysql -u root
-    -p'{{ mariadb_root_password }}'
-    -h localhost
-    -S {{ mariadb_socket }}
-    -e "quit"
-  changed_when: false
-  ignore_errors: true
-  register: root_pwd_check
-  tags: mariadb
-
-# Repeat runs with the same password can continue idempotently, otherwise fail.
-- name: Check if the specified root password is already set
-  shell: >
-    mysqladmin -u root -p{{ mariadb_root_password }} status
-  changed_when: false
-  no_log: true
-  when: root_pwd_check.rc != 0
-  tags: mariadb
-
-- name: Set MariaDB root password for the first time (root@localhost)
+- name: Ensure default user is present.
   mysql_user:
-    name: root
-    password: "{{ mariadb_root_password }}"
-    host: localhost
-    login_unix_socket: "{{ mariadb_socket }}"
+    name: "{{ mysql_user_name }}"
+    host: 'localhost'
+    password: "{{ mysql_user_password }}"
+    priv: '*.*:ALL,GRANT'
     state: present
-  when: root_pwd_check.rc != 0
-  tags: mariadb
+  no_log: "{{ mysql_hide_passwords }}"
+  when: mysql_user_name != mysql_root_username
+
+# Has to be after the password assignment, for idempotency.
+- name: Copy user-my.cnf file with password credentials.
+  ansible.builtin.template:
+    src: "user-my.cnf.j2"
+    dest: "{{ mysql_user_home }}/.my.cnf"
+    owner: "{{ mysql_user_name }}"
+    mode: 0600
+  no_log: "{{ mysql_hide_passwords }}"
+  when: >
+    mysql_user_name != mysql_root_username
+    and (mysql_install_packages | bool or mysql_user_password_update)
+
+- name: Disallow root login remotely
+  ansible.builtin.command: 'mysql -NBe "{{ item }}"'
+  with_items:
+    - DELETE FROM mysql.user WHERE User='{{ mysql_root_username }}' AND Host NOT IN ('localhost', '127.0.0.1', '::1')
+  changed_when: false
+
+- name: Get list of hosts for the root user.
+  ansible.builtin.command: mysql -NBe
+    "SELECT Host
+    FROM mysql.user
+    WHERE User = '{{ mysql_root_username }}'
+    ORDER BY (Host='localhost') ASC"
+  register: mysql_root_hosts
+  changed_when: false
+  check_mode: false
+  when: mysql_install_packages | bool or mysql_root_password_update
+
+# Note: We do not use mysql_user for this operation, as it doesn't always update
+# the root password correctly. See: https://goo.gl/MSOejW
+# Set root password for MySQL >= 5.7.x.
+- name: Update MySQL root password for localhost root account (5.7.x).
+  ansible.builtin.shell: >
+    mysql -u root -NBe
+    "ALTER USER '{{ mysql_root_username }}'@'{{ item }}'
+     IDENTIFIED WITH mysql_native_password BY '{{ mysql_root_password }}'; FLUSH PRIVILEGES;"
+  no_log: "{{ mysql_hide_passwords }}"
+  with_items: "{{ mysql_root_hosts.stdout_lines|default([]) }}"
+  when: >
+    ((mysql_install_packages | bool) or mysql_root_password_update)
+    and ('5.7.' in mysql_cli_version.stdout or '8.0.' in mysql_cli_version.stdout)
+
+# Set root password for MySQL < 5.7.x.
+- name: Update MySQL root password for localhost root account (< 5.7.x).
+  ansible.builtin.shell: >
+    mysql -NBe
+    'SET PASSWORD FOR "{{ mysql_root_username }}"@"{{ item }}" = PASSWORD("{{ mysql_root_password }}"); FLUSH PRIVILEGES;'
+  no_log: "{{ mysql_hide_passwords }}"
+  with_items: "{{ mysql_root_hosts.stdout_lines|default([]) }}"
+  when: >
+    ((mysql_install_packages | bool) or mysql_root_password_update)
+    and ('5.7.' not in mysql_cli_version.stdout and '8.0.' not in mysql_cli_version.stdout)
+
+# Has to be after the root password assignment, for idempotency.
+- name: Copy .my.cnf file with root password credentials.
+  ansible.builtin.template:
+    src: "root-my.cnf.j2"
+    dest: "{{ mysql_root_home }}/.my.cnf"
+    owner: root
+    group: root
+    mode: 0600
+  no_log: "{{ mysql_hide_passwords }}"
+  when: mysql_install_packages | bool or mysql_root_password_update
+
+- name: Get list of hosts for the anonymous user.
+  ansible.builtin.command: mysql -NBe "SELECT Host FROM mysql.user WHERE User = ''"
+  register: mysql_anonymous_hosts
+  changed_when: false
+  check_mode: false
+
+- name: Remove anonymous MySQL users.
+  mysql_user:
+    name: ""
+    host: "{{ item }}"
+    state: absent
+  with_items: "{{ mysql_anonymous_hosts.stdout_lines|default([]) }}"
+
+- name: Remove MySQL test database.
+  mysql_db:
+    name: 'test'
+    state: absent
+
+- name: Ensure MySQL databases are present.
+  mysql_db:
+    name: "{{ item.name }}"
+    collation: "{{ item.collation | default('utf8_general_ci') }}"
+    encoding: "{{ item.encoding | default('utf8') }}"
+    state: "{{ item.state | default('present') }}"
+    target: "{{ item.target | default(omit) }}"
+  with_items: "{{ mysql_databases }}"
+
+- name: Ensure MySQL users are present.
+  mysql_user:
+    name: "{{ item.name }}"
+    host: "{{ item.host | default('localhost') }}"
+    password: "{{ item.password }}"
+    priv: "{{ item.priv | default('*.*:USAGE') }}"
+    state: "{{ item.state | default('present') }}"
+    append_privs: "{{ item.append_privs | default('no') }}"
+    encrypted: "{{ item.encrypted | default('no') }}"
+  with_items: "{{ mysql_users }}"
+  no_log: "{{ mysql_hide_passwords }}"
