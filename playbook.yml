@@ -58,7 +58,6 @@
     - nodejs
     - rabbitmq
 
-
 # Gnome
 - name: Configure Gnome
   hosts: localhost
@@ -77,26 +76,6 @@
   become_user: admin
   roles:
     - gnome-extensions
-  vars:
-    gnome_extension_ids:
-    #  - 36    # lock keys
-    #  - 97    # coverflow alt tab
-    #  - 307   # dash to dock
-      - 517   # caffeine
-    #  - 615   # tray icons
-    #  - 1319  # GS connect
-    #  - 1460  # vitals
-    #  - 1804  # service monitor
-    #  - 2992  # IdeaPad
-    #  - 3193  # blur my shel
-    #  - 3628  # arcmenu
-    #  - 3733  # tiling assistant
-    #  - 3843  # just perfection
-    #  - 4470  # media controls
-    #  - 5278  # Pano clipboard manager
-    #  - 5660  # weather or not
-    #  - 5724  # battery health charging
-      - 6406  # fedora update indicator
 
 # Firefox
 - name: Configure Firefox
@@ -128,5 +107,5 @@
     - virtual-box 
     - jetbrains-toolbox
     - vscode
-
-
+  vars:
+    user: admin

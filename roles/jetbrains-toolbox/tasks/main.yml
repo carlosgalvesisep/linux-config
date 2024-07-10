@@ -22,7 +22,7 @@
 - name: Download JetBrains Toolbox
   get_url:
     url: "{{ jetbrains_toolbox_available_releases.json | json_query(jetbrains_toolbox_download_query) | first }}"
-    dest: "{{ jetbrains_toolbox_download_dir }}/jetbrains_toolbox.tar.gz"
+    dest: "/tmp/jetbrains_toolbox.tar.gz"
     checksum: "sha256:{{ lookup('url', jetbrains_toolbox_available_releases.json | json_query(jetbrains_toolbox_checksum_link) | first) | regex_search('[A-Fa-f0-9]{64}') }}"
   vars:
     jetbrains_toolbox_download_query: "TBA[?version == '{{ jetbrains_toolbox_version }}'].downloads.linux.link"
@@ -30,8 +30,8 @@
 
 - name: Unpack install archive
   unarchive:
-    src: "{{ jetbrains_toolbox_download_dir }}/jetbrains_toolbox.tar.gz"
-    dest: "{{ jetbrains_toolbox_download_dir }}"
+    src: "/tmp/jetbrains_toolbox.tar.gz"
+    dest: "/tmp"
     list_files: yes
     remote_src: yes
   register: jetbrains_toolbox_unarchive
@@ -41,12 +41,12 @@
     var: jetbrains_toolbox_unarchive.files
 
 - name: Install JetBrains Toolbox
-  shell: "{{ jetbrains_toolbox_download_dir }}/{{ jetbrains_toolbox_unarchive.files | first }}jetbrains-toolbox --install"
+  shell: "/tmp/{{ jetbrains_toolbox_unarchive.files | first }}jetbrains-toolbox --install"
 
 - name: Clean up downloaded files
   become: yes
   file:
-    path: "{{ jetbrains_toolbox_download_dir }}/{{ jetbrains_toolbox_unarchive.files | first }}"
+    path: "/tmp/{{ jetbrains_toolbox_unarchive.files | first }}"
     state: absent
 
 - name: Clean up downloaded files
@@ -55,5 +55,5 @@
     path: "{{ item }}"
     state: absent
   with_items:
-    - "{{ jetbrains_toolbox_download_dir }}/{{ jetbrains_toolbox_unarchive.files | first }}"
-    - "{{ jetbrains_toolbox_download_dir }}/jetbrains_toolbox.tar.gz"
+    - "/tmp/{{ jetbrains_toolbox_unarchive.files | first }}"
+    - "/tmp/jetbrains_toolbox.tar.gz"

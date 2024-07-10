@@ -1,0 +1,6 @@
+---
+flatpak_apps:
+  - org.onlyoffice.desktopeditors
+  - org.mozilla.Thunderbird
+  - com.getpostman.Postman
+  - io.github.mimbrero.WhatsAppDesktop

@@ -1,5 +1,4 @@
 ---
-# Setup/install tasks.
 - name: Ensure erlang is installed.
   dnf:
     name: erlang
@@ -18,7 +17,6 @@
   dnf:
     name: "{{ rabbitmq_daemon }}"
     state: "present"
-
 
 - name: Ensure rabbitmq is started and enabled (if configured).
   service:
