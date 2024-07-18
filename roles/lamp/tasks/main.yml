@@ -52,7 +52,13 @@
         - php-gd
         - phpmyadmin
 
-    - name: Install phpMyAdmin
-      dnf:
-        name: phpmyadmin
-        state: present
+- name: Ensure PHP is enabled and started
+      systemd:
+        name: php-fpm
+        state: started
+        enabled: yes
+
+- name: Restart Apache to load PHP modules
+  systemd:
+    name: httpd
+    state: restarted
