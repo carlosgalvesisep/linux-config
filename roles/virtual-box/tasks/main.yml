@@ -6,7 +6,7 @@
 - name: Download VirtualBox RPM
   get_url:
     url: "{{ virtualbox_url }}"
-    dest: "/tmp/VirtualBox-{{ virtualbox_version }}.rpm"
+    dest: "{{ download_dir }}/VirtualBox-{{ virtualbox_version }}.rpm"
 
 - name: Install dependencies
   dnf:
@@ -16,5 +16,5 @@
 
 - name: Install VirtualBox
   dnf:
-    name: "/tmp/VirtualBox-{{ virtualbox_version }}.rpm"
+    name: "{{ download_dir }}/VirtualBox-{{ virtualbox_version }}.rpm"
     state: present

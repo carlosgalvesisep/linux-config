@@ -1,0 +1,32 @@
+---
+- name: Fetch latest release information from GitHub
+  uri:
+    url: https://api.github.com/repos/KatharaFramework/Kathara/releases/latest
+    return_content: yes
+  register: release_info
+
+- name: Extract the download URL for the x86_64 RPM
+  set_fact:
+    rpm_url: "{{ item.browser_download_url }}"
+  loop: "{{ release_info.json.assets }}"
+  when: item.browser_download_url is search('.*x86_64\.rpm$')
+
+- name: Ensure the rpm_url is set
+  fail:
+    msg: "Failed to find the x86_64 RPM download URL"
+  when: rpm_url is not defined
+
+- name: Download the latest Kathara x86_64 RPM
+  get_url:
+    url: "{{ rpm_url }}"
+    dest: "{{ rpm_path }}"
+  when: rpm_url is defined
+
+- name: Install Kathara
+  dnf:
+    name: "{{ rpm_path }}"
+    state: present
+    disable_gpg_check: true
+
+- name: cleanup
+  include_tasks: cleanup.yml

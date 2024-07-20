@@ -1,0 +1,6 @@
+---
+- name: Clean up Kathara RPM file
+  file:
+    path: "{{ rpm_path }}"
+    state: absent
+  tags: cleanup
