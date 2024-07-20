@@ -19,9 +19,8 @@
         msg: "This playbook is only intended for Fedora"
       when: '"Fedora" not in os_release.stdout'
 
-
 # Fedora
-- name: Update all dnf packages
+- name: Handle dnf packages
   hosts: localhost
   become: yes
   tasks:
@@ -29,6 +28,14 @@
       dnf:
         name: '*'
         state: latest
+
+    - name: Remove packages
+      dnf:
+        name: "{{ item }}"
+        state: absent
+      loop:
+        - libreoffice*
+
     - name: Install packages
       dnf:
         name: "{{ item }}"
@@ -36,19 +43,20 @@
       loop:
         - git
         - fastfetch
-
+        - pandoc
+        - pandoc-pdf
+        - keepassxc
 
 # Development
 - name: Install Development Tools
   hosts: localhost
   become: true
   roles:
-#    - lamp
+    - lamp
     - docker
     - python
     - nodejs
     - rabbitmq
-
 
 # Gnome
 - name: Configure Gnome
@@ -61,6 +69,13 @@
     #hostname_static: fedora-pc
     #hostname_pretty: Fedora PC
 
+# Gnome
+- name: Install Gnome Extensions
+  hosts: localhost
+  become: true
+  become_user: admin
+  roles:
+    - gnome-extensions
 
 # Firefox
 - name: Configure Firefox
@@ -92,5 +107,5 @@
     - virtual-box 
     - jetbrains-toolbox
     - vscode
-
-
+  vars:
+    user: admin

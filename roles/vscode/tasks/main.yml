@@ -28,7 +28,7 @@
   become: true
 
 - name: Install extensions
-  become_user: admin
+  become_user: "{{ user }}"
   become: false
   ansible.builtin.command: "code --install-extension {{ item }} --no-sandbox --user-data-dir=/home/admin/.vscode-user-data "
   with_items: "{{ vscode_extensions }}"
