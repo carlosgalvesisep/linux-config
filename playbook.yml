@@ -52,7 +52,7 @@
   hosts: localhost
   become: true
   roles:
-#    - lamp
+    - lamp
     - docker
     - python
     - nodejs
