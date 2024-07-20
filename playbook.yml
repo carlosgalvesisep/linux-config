@@ -107,5 +107,6 @@
     - virtual-box 
     - jetbrains-toolbox
     - vscode
+    - kathara
   vars:
     user: admin
