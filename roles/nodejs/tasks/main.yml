@@ -1,22 +1,21 @@
 ---
-- name: Ensure curl is installed
-  dnf:
-    name: curl
-    state: present
+- name: Install nvm {{ nvm_version }}
+  ansible.builtin.git:
+    repo: "{{ nvm_git_repository }}"
+    dest: "{{ nvm_install_path }}"
+    version: "v{{ nvm_version }}"
 
-- name: Download and install NVM
-  shell: curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+- name: Source nvm
+  become_user: "{{ user }}"
+  ansible.builtin.blockinfile:
+    path: "{{ nvm_shell_init_file }}"
+    marker: "# NVM path management from ansible {mark}"
+    block: |
+      . {{ nvm_install_path }}/nvm.sh
+
+- name: Install Node.js
+  become_user: "{{ user }}"
+  ansible.builtin.shell: ". ./nvm.sh && nvm install {{ node_version }}"
   args:
-    creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh"
-
-- name: Source NVM script
-  shell: >
-    export NVM_DIR="{{ ansible_env.HOME }}/.nvm" &&
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-    
-
-- name: Install Node.js 20 LTS
-  #shell: nvm install 20
-  dnf:
-    name: nodejs
-    state: present
+    chdir: "{{ nvm_install_path }}"
+  register: nvm_install_result

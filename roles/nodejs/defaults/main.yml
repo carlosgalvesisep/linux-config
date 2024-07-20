@@ -1,0 +1,10 @@
+nvm_version: 0.39.7
+
+node_version: 20.14.0
+
+#{{ ansible_env.HOME }}
+
+nvm_install_path: ~/.nvm
+nvm_shell_init_file: ~/.profile
+
+nvm_git_repository: https://github.com/creationix/nvm.git
