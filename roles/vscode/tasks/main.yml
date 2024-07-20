@@ -27,10 +27,10 @@
     state: latest
   become: true
 
-- name: Install extensions
-  become_user: "{{ user }}"
-  become: false
-  ansible.builtin.command: "code --install-extension {{ item }} --no-sandbox --user-data-dir=/home/admin/.vscode-user-data "
-  with_items: "{{ vscode_extensions }}"
-  register: result
-  changed_when: "'already installed' not in result.stdout" 
+#- name: Install extensions
+#  become_user: "{{ user }}"
+#  become: false
+#  ansible.builtin.command: "code --install-extension {{ item }} --no-sandbox --user-data-dir=/home/admin/.vscode-user-data "
+#  with_items: "{{ vscode_extensions }}"
+#  register: result
+#  changed_when: "'already installed' not in result.stdout" 

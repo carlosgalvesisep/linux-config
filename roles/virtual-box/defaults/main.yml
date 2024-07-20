@@ -14,3 +14,5 @@ virtualbox_dep_pkgs:
   - kernel-headers
   - kernel-devel
   - dkms
+
+download_dir: /tmp/linux-config
