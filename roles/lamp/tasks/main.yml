@@ -53,10 +53,10 @@
         - phpmyadmin
 
 - name: Ensure PHP is enabled and started
-      systemd:
-        name: php-fpm
-        state: started
-        enabled: yes
+  systemd:
+    name: php-fpm
+    state: started
+    enabled: yes
 
 - name: Restart Apache to load PHP modules
   systemd:
