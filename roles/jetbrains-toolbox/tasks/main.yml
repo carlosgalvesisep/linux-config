@@ -41,4 +41,5 @@
     var: jetbrains_toolbox_unarchive.files
 
 - name: Install JetBrains Toolbox
+  become_user: "{{ user }}"
   shell: "{{ download_dir }}/{{ jetbrains_toolbox_unarchive.files | first }}jetbrains-toolbox --install"
