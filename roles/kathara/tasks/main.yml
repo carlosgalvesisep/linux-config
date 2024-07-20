@@ -27,6 +27,3 @@
     name: "{{ rpm_path }}"
     state: present
     disable_gpg_check: true
-
-- name: cleanup
-  include_tasks: cleanup.yml

@@ -1,2 +1,2 @@
-rpm_path: /tmp/kathara-latest-x86_64.rpm
-log_file: log.json
+download_dir: /tmp/linux-config
+rpm_path: "{{ download_dir }}/kathara-latest-x86_64.rpm"
