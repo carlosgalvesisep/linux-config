@@ -111,6 +111,15 @@
     - flatpak-apps
     - autGov
 
+# Postman fix
+- name: Fix postman installation
+  hosts: localhost
+  become: true
+  roles:
+    - postman-fix
+  vars:
+    user: admin
+
 # Applications
 - name: Install Applications
   hosts: localhost

@@ -1,0 +1,23 @@
+---
+- name: Install openssl if not present
+  dnf:
+    name: openssl
+    state: present
+
+- name: Create Postman proxy directory
+  become: true
+  become_user: "{{ user }}"
+  file:
+    path: "/home/{{ user }}/.var/app/com.getpostman.Postman/config/Postman/proxy"
+    state: directory
+    mode: '0755'
+
+- name: Generate Postman proxy certificate
+  become: true
+  become_user: "{{ user }}"
+  command: >
+    openssl req -subj '/C=US/CN=Postman Proxy' -new -newkey rsa:2048 -sha256 -days 365 -nodes -x509
+    -keyout /home/{{ user }}/.var/app/com.getpostman.Postman/config/Postman/proxy/postman-proxy-ca.key
+    -out /home/{{ user }}/.var/app/com.getpostman.Postman/config/Postman/proxy/postman-proxy-ca.crt
+  args:
+    creates: "/home/{{ user }}/.var/app/com.getpostman.Postman/config/Postman/proxy/postman-proxy-ca.crt"
