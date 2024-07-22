@@ -27,13 +27,19 @@
     value: "'Adwaita'"
     state: present
 
+- name: Ensure the local wallpapers directory exists
+  file:
+    path: /home/{{ user }}/.local/share/backgrounds
+    state: directory
+    mode: '0755'
+    owner: "{{ user }}"
+    group: "{{ user }}"
 
 - name: Copy the background image to GNOME wallpapers directory
   copy:
     src: "files/{{ image_name }}"
     dest: /home/{{ user }}/.local/share/backgrounds/{{ image_name }}
     mode: '0644'
-
 
 - name: Set Background image (Light)
   become: true
