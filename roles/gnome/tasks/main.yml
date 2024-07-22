@@ -27,6 +27,30 @@
     value: "'Adwaita'"
     state: present
 
+
+- name: Copy the background image to GNOME wallpapers directory
+  copy:
+    src: "files/{{ image_name }}"
+    dest: /home/{{ user }}/.local/share/backgrounds/{{ image_name }}
+    mode: '0644'
+
+
+- name: Set Background image (Light)
+  become: true
+  become_user: "{{ user }}"
+  community.general.dconf:
+    key: "/org/gnome/desktop/background/picture-uri"
+    value: "'file:///home/{{ user }}/.local/share/backgrounds/{{ image_name }}'"
+    state: present
+
+- name: Set Background image (Dark)
+  become: true
+  become_user: "{{ user }}"
+  community.general.dconf:
+    key: "/org/gnome/desktop/background/picture-uri-dark"
+    value: "'file:///home/{{ user }}/.local/share/backgrounds/{{ image_name }}'"
+    state: present
+
 - name: Configure button layout
   become: true
   become_user: "{{ user }}"
