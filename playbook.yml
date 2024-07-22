@@ -58,6 +58,8 @@
         - pandoc
         - pandoc-pdf
         - keepassxc
+        #- podman
+        #- boxes
 
 # Development
 - name: Install Development Tools
