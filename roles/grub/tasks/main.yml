@@ -1,0 +1,12 @@
+---
+- name: Copy install script to target machine
+  copy:
+    src: Vimix-1080p/
+    dest: "{{ download_dir }}/grub-theme"
+    mode: '0755'
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: Execute the Vimix install script
+  command: "{{ download_dir }}/grub-theme/install.sh"
+  become: yes
