@@ -134,14 +134,3 @@
   vars:
     user: admin
 
-# Cleanup
-- name: Clean up downloaded files
-  hosts: localhost
-  become: true
-  vars: 
-    download_dir: /tmp/linux-config
-  tasks:
-    - name: Delete temporary download directory
-      file:
-        path: "{{ download_dir }}"
-        state: absent
