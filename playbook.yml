@@ -58,6 +58,8 @@
         - pandoc
         - pandoc-pdf
         - keepassxc
+        #- podman
+        #- boxes
 
 # Development
 - name: Install Development Tools
@@ -109,6 +111,15 @@
     - flatpak-apps
     - autGov
 
+# Postman fix
+- name: Fix postman installation
+  hosts: localhost
+  become: true
+  roles:
+    - postman-fix
+  vars:
+    user: admin
+
 # Applications
 - name: Install Applications
   hosts: localhost
@@ -123,14 +134,12 @@
   vars:
     user: admin
 
-# Cleanup
-- name: Clean up downloaded files
+# Logout User
+- name: Logout user
   hosts: localhost
   become: true
-  vars: 
-    download_dir: /tmp/linux-config
   tasks:
-    - name: Delete temporary download directory
-      file:
-        path: "{{ download_dir }}"
-        state: absent
+    - name: Logout the current user
+      ansible.builtin.command: "pkill -KILL -u {{ user }}"
+      vars:
+        user: admin

@@ -27,6 +27,36 @@
     value: "'Adwaita'"
     state: present
 
+- name: Ensure the local wallpapers directory exists
+  file:
+    path: /home/{{ user }}/.local/share/backgrounds
+    state: directory
+    mode: '0755'
+    owner: "{{ user }}"
+    group: "{{ user }}"
+
+- name: Copy the background image to GNOME wallpapers directory
+  copy:
+    src: "files/{{ image_name }}"
+    dest: /home/{{ user }}/.local/share/backgrounds/{{ image_name }}
+    mode: '0644'
+
+- name: Set Background image (Light)
+  become: true
+  become_user: "{{ user }}"
+  community.general.dconf:
+    key: "/org/gnome/desktop/background/picture-uri"
+    value: "'file:///home/{{ user }}/.local/share/backgrounds/{{ image_name }}'"
+    state: present
+
+- name: Set Background image (Dark)
+  become: true
+  become_user: "{{ user }}"
+  community.general.dconf:
+    key: "/org/gnome/desktop/background/picture-uri-dark"
+    value: "'file:///home/{{ user }}/.local/share/backgrounds/{{ image_name }}'"
+    state: present
+
 - name: Configure button layout
   become: true
   become_user: "{{ user }}"
@@ -74,6 +104,18 @@
     key: "/org/gnome/desktop/datetime/automatic-timezone"
     value: "true"
     state: present
+  
+- name: Configure GNOME Night Light
+  become: true
+  become_user: "{{ user }}"
+  community.general.dconf:
+    key: "{{ item.key }}"
+    value: "{{ item.value }}"
+    state: present
+  loop:
+    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-enabled", value: "true" }
+    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-schedule-automatic", value: "true" }
+    - { key: "/org/gnome/settings-daemon/plugins/color/night-light-temperature", value: "2700" }
 
 - name: Disable hot corners
   become: true
