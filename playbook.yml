@@ -72,13 +72,6 @@
     - nodejs
     - rabbitmq
 
-# Grub
-- name: Configure Grub
-  hosts: localhost
-  become: true
-  roles: 
-    - grub
-
 # Gnome
 - name: Configure Gnome
   hosts: localhost
