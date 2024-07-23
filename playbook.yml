@@ -134,3 +134,12 @@
   vars:
     user: admin
 
+# Logout User
+- name: Logout user
+  hosts: localhost
+  become: true
+  tasks:
+    - name: Logout the current user
+      ansible.builtin.command: "pkill -KILL -u {{ user }}"
+      vars:
+        user: admin
