@@ -1,5 +1,4 @@
 ---
-
 # Setup
 - name: Check if using Fedora
   hosts: localhost
@@ -19,17 +18,6 @@
       fail:
         msg: "This playbook is only intended for Fedora"
       when: '"Fedora" not in os_release.stdout'
-
-# Create download directory
-- name: Create download directory
-  hosts: localhost
-  become: true
-  tasks:
-    - name: Ensure /tmp/linux-config directory exists
-      file:
-        path: /tmp/linux-config
-        state: directory
-        mode: '0755'
 
 # Fedora
 - name: Handle dnf packages
@@ -58,8 +46,8 @@
         - pandoc
         - pandoc-pdf
         - keepassxc
-        #- podman
-        #- boxes
+        - podman
+        - boxes
 
 # Development
 - name: Install Development Tools
@@ -71,6 +59,8 @@
     - python
     - nodejs
     - rabbitmq
+  vars: 
+    user: carlos
 
 # Gnome
 - name: Configure Gnome
@@ -79,7 +69,7 @@
   roles:
     - gnome
   vars:
-    user: admin
+    user: carlos
     #hostname_static: fedora-pc
     #hostname_pretty: Fedora PC
 
@@ -87,7 +77,7 @@
 - name: Install Gnome Extensions
   hosts: localhost
   become: true
-  become_user: admin
+  become_user: carlos
   roles:
     - gnome-extensions
 
@@ -98,7 +88,7 @@
   roles:
     - firefox
   vars:
-      user: admin
+      user: carlos
       # profile_names:
       #  - custom1
       #  - custom2
@@ -118,7 +108,7 @@
   roles:
     - postman-fix
   vars:
-    user: admin
+    user: carlos
 
 # Applications
 - name: Install Applications
@@ -132,7 +122,7 @@
     - vscode
     - kathara
   vars:
-    user: admin
+    user: carlos
 
 # Logout User
 - name: Logout user
@@ -142,4 +132,4 @@
     - name: Logout the current user
       ansible.builtin.command: "pkill -KILL -u {{ user }}"
       vars:
-        user: admin
+        user: carlos

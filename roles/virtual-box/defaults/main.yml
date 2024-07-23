@@ -15,4 +15,4 @@ virtualbox_dep_pkgs:
   - kernel-devel
   - dkms
 
-download_dir: /tmp/linux-config
+download_dir: /tmp

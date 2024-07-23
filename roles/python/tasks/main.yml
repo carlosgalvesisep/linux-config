@@ -33,5 +33,5 @@
   copy:
     content: |
       auto_activate_base: false
-    dest: /home/admin/.condarc
+    dest: "/home/{{ user }}/.condarc"
 
